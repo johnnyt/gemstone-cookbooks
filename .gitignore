@@ -1,0 +1,12 @@
+.DS_Store
+Vagrantfile
+.vagrant
+.chef/*
+*.log
+*.swp
+*.swo
+tmp/*
+.bundle
+couchdb.std*
+.rvmrc
+roles/gemstone.json

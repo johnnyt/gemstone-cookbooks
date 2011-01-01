@@ -1,0 +1,36 @@
+{
+  "long_description": "",
+  "recipes": {
+    "home": "Sets up the home environment"
+  },
+  "conflicting": {
+  },
+  "description": "Sets up the home environment",
+  "providing": {
+  },
+  "maintainer": "Alliance Health",
+  "attributes": {
+  },
+  "replacing": {
+  },
+  "dependencies": {
+    "sudoers": [
+
+    ]
+  },
+  "maintainer_email": "tech@alliancehealth.com",
+  "groupings": {
+  },
+  "recommendations": {
+  },
+  "platforms": {
+    "ubuntu": [
+
+    ]
+  },
+  "name": "home",
+  "version": "0.0.1",
+  "license": "Apache 2.0",
+  "suggestions": {
+  }
+}

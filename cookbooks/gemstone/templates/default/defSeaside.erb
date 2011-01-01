@@ -1,0 +1,58 @@
+### GemStone environment settings ###
+
+## Pick up environment variables from the standard installation location.
+# Commands in seaside/bin source _that_ file, so if you installed GemStone
+# in a different directory than /opt/gemstone, you need to change it in
+# both this file and the file it points to
+
+if [ -r /opt/gemstone/product/seaside/etc/gemstone.conf ]; then
+    . /opt/gemstone/product/seaside/etc/gemstone.conf
+else
+        echo 'defSeaside: WARNING - Your GEMSTONE environment variables have not been set!'
+        echo 'defSeaside: Missing config file /opt/gemstone/product/seaside/etc/gemstone.conf'
+fi
+
+# If you want to override any of the default environment variable settings
+# insert commands to do that here
+
+export GEMSTONE=/opt/gemstone/product
+export PATH=$GEMSTONE/bin:/$PATH
+export GEMSTONE_NRS_ALL=#dir:/opt/gemstone#log:/opt/gemstone/log/%N_%P.log
+export GEMSTONE_EXE_CONF=/opt/gemstone/etc
+export GEMSTONE_LOG=/opt/gemstone/log/seaside.log
+export GEMSTONE_SYS_CONF=/opt/gemstone/etc/system.conf
+export GEMSTONE_LOGDIR=/opt/gemstone/log
+export GEMSTONE_NAME=seaside
+export GEMSTONE_DATADIR=/opt/gemstone/data
+
+### Add Gemstone paths to some common environment variables ###
+### -- unless they have already been added. ###
+### WARNING: assumes if paths start with $GEMSTONE they are already set ###
+
+# Compute the length of the $GEMSTONE environment variable
+GS_LEN=${#GEMSTONE}
+
+## Gemstone and Seaside program paths
+if [[ ${PATH:0:$GS_LEN} != $GEMSTONE ]] ; then
+    export PATH=$GEMSTONE/bin:$GEMSTONE/seaside/bin:$PATH
+fi
+
+## Gemstone library path
+if [[ ${LD_LIBRARY_PATH:0:$GS_LEN} != ${GEMSTONE} ]] ; then
+    export LD_LIBRARY_PATH=$GEMSTONE/lib:$LD_LIBRARY_PATH
+fi
+### MacOSX library path is different
+if [[ ${DYLD_LIBRARY_PATH:0:$GS_LEN} != ${GEMSTONE} ]] ; then
+    export DYLD_LIBRARY_PATH=$GEMSTONE/lib:$DYLD_LIBRARY_PATH
+fi
+
+## Gemstone manpages
+if [[ ${MANPATH:0:$GS_LEN} != $GEMSTONE ]] ; then
+    MANPATH=$GEMSTONE/doc:$MANPATH
+fi
+
+## Export environment variables for use outside this script
+# You can remove any that you set via other means
+export GEMSTONE GEMSTONE_LOGDIR GEMSTONE_DATADIR GEMSTONE_KEYFILE
+export GEMSTONE_NAME GEMSTONE_SYS_CONF GEMSTONE_EXE_CONF
+export PATH MANPATH LD_LIBRARY_PATH DYLD_LIBRARY_PATH

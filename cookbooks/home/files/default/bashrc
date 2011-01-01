@@ -1,0 +1,53 @@
+# If not running interactively, don't do anything
+if [[ -n "$PS1" ]]; then
+
+  HISTCONTROL=ignoredups:ignorespace
+  shopt -s histappend
+  HISTSIZE=10000
+  HISTFILESIZE=2000
+
+  # check the window size after each command and, if necessary,
+  # update the values of LINES and COLUMNS.
+  shopt -s checkwinsize
+
+  # make less more friendly for non-text input files, see lesspipe(1)
+  [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
+
+  export EDITOR="vim"
+  export LS_OPTIONS='--color=auto'
+  eval `dircolors`
+  set TERM xterm-256color; export TERM
+
+  export MAGLEV_HOME='/opt/maglev'
+  export PATH="$PATH:$MAGLEV_HOME/bin"
+
+  # Aliases
+  . ~/home/aliases.sh
+
+  # Bash completions
+  . ~/home/completions_gem.sh
+  . ~/home/completions_git.sh
+  . ~/home/completions_ssh.sh
+  complete -C ~/home/completions_rake.sh -o default rake
+
+  # always load gems for ruby
+  export RUBYOPT=rubygems
+
+  # path
+  [ -e ~/home/path.sh ] && . ~/home/path.sh
+
+  # set up version control prompt stuff
+  . ~/home/vcs.sh
+  export VC_PS1='\[\033[1;32;34m\]${__vcs_base_dir}\[\033[1;32;31m\]${__dirty}\[\033[1;32;33m\]${__vcs_ref}\[\033[1;32;34m\]${__vcs_sub_dir}\[\033[1;32;32m\] \$\[\033[00;00m\] '
+
+  # export PS1="$VC_PS1"
+  export PS1='\[\033[01;32m\]\u@\[\033[01;31m\]\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+fi
+
+if groups | grep -q rvm ; then
+  source "/usr/local/lib/rvm"
+
+  # if [ -f ~/bin/rvm-prompt -o -f $rvm_path/bin/rvm-prompt ]; then
+  #   export PS1="\[\033[1;32;30m\]\$(rvm-prompt i v g) $PS1"
+  # fi
+fi

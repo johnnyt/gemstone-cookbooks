@@ -1,0 +1,32 @@
+{
+  "long_description": "",
+  "recipes": {
+  },
+  "conflicting": {
+  },
+  "description": "Updates /etc/sudoers",
+  "providing": {
+  },
+  "maintainer": "Heavy Water Software Inc.",
+  "attributes": {
+  },
+  "replacing": {
+  },
+  "dependencies": {
+  },
+  "maintainer_email": "darrin@heavywater.ca",
+  "groupings": {
+  },
+  "recommendations": {
+  },
+  "platforms": {
+    "ubuntu": [
+
+    ]
+  },
+  "name": "sudoers",
+  "version": "0.0.0",
+  "license": "MIT",
+  "suggestions": {
+  }
+}

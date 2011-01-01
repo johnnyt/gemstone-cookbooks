@@ -1,0 +1,3 @@
+! topaz initialization
+set user DataCurator password swordfish gemstone seaside
+login

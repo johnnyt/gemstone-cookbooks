@@ -1,0 +1,33 @@
+{
+  "long_description": "",
+  "recipes": {
+    "gemstone": "Sets up Gemstone"
+  },
+  "conflicting": {
+  },
+  "description": "Sets up Gemstone",
+  "providing": {
+  },
+  "maintainer": "JohnnyT",
+  "attributes": {
+  },
+  "replacing": {
+  },
+  "dependencies": {
+  },
+  "maintainer_email": "john@commadev.com",
+  "groupings": {
+  },
+  "recommendations": {
+  },
+  "platforms": {
+    "ubuntu": [
+
+    ]
+  },
+  "name": "gemstone",
+  "version": "0.0.1",
+  "license": "Apache 2.0",
+  "suggestions": {
+  }
+}

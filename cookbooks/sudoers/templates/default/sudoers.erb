@@ -1,0 +1,14 @@
+Defaults	env_reset
+
+root	ALL=(ALL) ALL
+%sudo ALL=(ALL) NOPASSWD: ALL
+%admin ALL=NOPASSWD: ALL
+<% if node[:sudoers] %>
+<% node[:sudoers][:users].each do |user, options| %>
+<% if options[:defaults] %>
+Defaults:<%= user %> <%= options[:defaults] %>
+<% end %>
+<%= user %> <%= options[:params] %>
+<% end %>
+<% end %>
+

@@ -1,0 +1,8 @@
+maintainer        "JohnnyT"
+maintainer_email  "john@commadev.com"
+license           "Apache 2.0"
+description       "Sets up Gemstone"
+version           "0.0.1"
+# depends           "restart"
+recipe            "gemstone", "Sets up Gemstone"
+supports          "ubuntu"

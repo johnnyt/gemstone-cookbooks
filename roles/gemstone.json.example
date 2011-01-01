@@ -1,0 +1,38 @@
+{
+  "json_class": "Chef::Role",
+  "chef_type":  "role",
+  "name":       "gemstone",
+  "description": "GemStone Server",
+
+  "run_list": [
+    "recipe[ubuntu]",
+    "recipe[build-essential]",
+    "recipe[gemstone]",
+    "recipe[gemstone::services]",
+    "recipe[gemstone::remote]",
+    "recipe[gemstone::nginx]"
+  ],
+
+  "default_attributes": {
+    "accounts": {
+      "glass": {
+        "keys": [
+          {
+            "name": "YOUR_USERNAME",
+            "key": "ssh-rsa YOUR_KEY"
+          }
+        ]
+      }
+    },
+
+    "chef": {
+      "server_url": "https://api.opscode.com/organizations/YOUR_ORG",
+      "cache_path": "/var/chef/cache",
+      "backup_path": "/var/chef/backup",
+      "validation_client_name": "YOUR_ORG-validator",
+      "run_path": "/var/chef"
+    }
+  },
+
+  "override_attributes": { }
+}

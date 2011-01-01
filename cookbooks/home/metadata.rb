@@ -1,0 +1,8 @@
+maintainer        "Alliance Health"
+maintainer_email  "tech@alliancehealth.com"
+license           "Apache 2.0"
+description       "Sets up the home environment"
+version           "0.0.1"
+depends           "sudoers"
+recipe            "home", "Sets up the home environment"
+supports          "ubuntu"
