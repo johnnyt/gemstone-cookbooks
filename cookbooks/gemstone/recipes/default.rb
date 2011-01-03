@@ -6,7 +6,8 @@
 # http://onsmalltalk.com/2010-10-23-faster-remote-gemstone
 
 # Packages
-%w[ htop iftop tree psmisc w3m screen curl git-core subversion vim-nox zip ].each{ |pkg| package pkg }
+# %w[ htop iftop tree psmisc w3m screen curl git-core subversion vim-nox zip ].each{ |pkg| package pkg }
+%w[ vim-nox htop iftop tree psmisc w3m screen curl git-core zip ].each{ |pkg| package pkg }
 
 require_recipe "sudoers"
 
@@ -68,9 +69,11 @@ end
 
 #-----[ Main GemStone setup
 
+# Use the setupSharedMemory script?
 bash "Configure kernel for more shared memory" do
   user "root"
-  code "echo 'kernel.shmmax = 209715200 # 200 MB for GemStone' >> /etc/sysctl.conf"
+  code "echo 'kernel.shmmax = 786146304 # for GemStone' >> /etc/sysctl.conf"
+  # code "echo 'kernel.shmmax = 209715200 # 200 MB for GemStone' >> /etc/sysctl.conf"
   not_if "grep -q 'GemStone' /etc/sysctl.conf"
 end
 
@@ -102,37 +105,59 @@ remote_directory "/opt/gemstone" do
   files_owner   username
 end
 
+zip_filename = "GemStone64Bit#{node[:gemstone][:version]}-#{node[:gemstone][:platform]}"
+
 bash "Download GemStone" do
   cwd "/opt/gemstone"
-
-  ver = node[:gemstone][:version]
-  platform = node[:gemstone][:platform]
-  filename = "GemStone64Bit#{ver}-#{platform}"
-
-  code "wget ftp://ftp.gemstone.com/pub/GemStone64/#{ver}/#{filename}.zip"
-
-  not_if "[ -e /opt/gemstone/#{filename}.zip ]"
+  code "wget ftp://ftp.gemstone.com/pub/GemStone64/#{node[:gemstone][:version]}/#{zip_filename}.zip"
+  not_if "[ -e /opt/gemstone/#{zip_filename}.zip ]"
 end
 
-bash "Install GemStone" do
-  filename = "GemStone64Bit#{node[:gemstone][:version]}-#{node[:gemstone][:platform]}"
+# Download extent that has Seaside30 loaded
+bash "Download Seaside30 extent" do
+  extent_name = "extent0.dbf"
+  # Hosted on JohnnyT's rackspace account - has Seaside30 loaded
+  remote_file = "http://c0084442.cdn2.cloudfiles.rackspacecloud.com/#{extent_name}"
 
   cwd "/opt/gemstone"
+  code <<-CODE
+    wget #{remote_file}
+  CODE
+    # cp seaside.dbf data/extent0.dbf
+  not_if "[ -e /opt/gemstone/#{extent_name} ]"
+end
+
+
+bash "Install GemStone" do
+  cwd "/opt/gemstone"
   code <<-EOH
-    unzip #{filename}.zip
-    ln -s #{filename} product
+    unzip #{zip_filename}.zip
+    ln -s #{zip_filename} product
     mkdir -p data etc locks log www/glass1 www/glass2 www/glass3
     cp product/data/system.conf etc/
     cp product/seaside/etc/gemstone.key etc/
     cp product/seaside/etc/gemstone.key sys/
-    cp product/bin/extent0.seaside.dbf data/extent0.dbf
+    cp extent0.dbf data/extent0.dbf
     touch log/seaside.log
     chmod ug+rw log/*
     chmod 600 data/extent0.dbf
     chown -R #{username}:#{username} .
   EOH
+    # cp product/bin/extent0.seaside.dbf data/extent0.dbf
 
   not_if "[ -e /opt/gemstone/data/extent0.dbf ]"
+end
+
+
+# These get runSeasideGems30 working
+%w[ runSeasideGems30 startSeaside30_Adaptor ].each do |filename|
+  cookbook_file "/opt/gemstone/product/seaside/bin/#{filename}" do
+    source  "gemstone/#{filename}"
+    owner   username
+    group   username
+    mode    0755
+    # action  :create_if_missing
+  end
 end
 
 template "/opt/gemstone/product/seaside/defSeaside" do
@@ -147,14 +172,14 @@ end
 #   code <<-CMD
 # topaz << EOF
 # run
-# | repository name version |
-# repository := MCHttpRepository
-#     location: 'http://seaside.gemstone.com/ss/fastcgi'
-#     user: ''
-#     password: ''.
-# name := repository allFileNames at: 2.
-# version := repository loadVersionFromFileNamed: name.
-# version load.
+# 
+# Gofer new
+#     squeaksource: 'MetacelloRepository';
+#     package: 'ConfigurationOfSeaside30';
+#     load.
+# (Smalltalk at: #ConfigurationOfSeaside30) load.
+# 
+# 
 # %
 # commit
 # logout

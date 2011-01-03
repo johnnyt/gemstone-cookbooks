@@ -14,7 +14,7 @@ if [[ -n "$PS1" ]]; then
   [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
 
   export EDITOR="vim"
-  export LS_OPTIONS='--color=auto'
+  export LS_OPTIONS='--color=auto -h'
   eval `dircolors`
   set TERM xterm-256color; export TERM
 

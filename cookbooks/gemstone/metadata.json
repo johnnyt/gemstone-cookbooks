@@ -14,6 +14,18 @@
   "replacing": {
   },
   "dependencies": {
+    "sudoers": [
+
+    ],
+    "apt": [
+
+    ],
+    "build-essential": [
+
+    ],
+    "ubuntu": [
+
+    ]
   },
   "maintainer_email": "john@commadev.com",
   "groupings": {

@@ -2,6 +2,11 @@ require 'rubygems'
 require 'chef'
 require 'json'
 
+desc "SSH into vagrant box as glass"
+task :ssh do
+  system "ssh -p2222 -XC glass@localhost"
+end
+
 desc "Vagrant commands using bundle exec"
 task :va, :cmd do |t, args|
   system "bundle exec vagrant #{args.cmd}"

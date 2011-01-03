@@ -30,13 +30,17 @@ Now run the following to setup your vagrant box (this also reboots the box for s
 vagrant up && vagrant reload
 </pre>
 
-Now you should be able to SSH into the box and open GemTools.
+Now ssh in and run:
+
+<pre>
+startstone -N && sudo /etc/init.d/gs_fastcgi start
+</pre>
+
+Now you should be able to pull up the SeaSide site in a browser.
 
 Todo:
 
-* Finish NGINX - get it working with SeaSide
 * IPTables
-* Get the gs_fastcgi service working
 
 
 (MIT License) - Copyright (c) 2010 JohnnyT

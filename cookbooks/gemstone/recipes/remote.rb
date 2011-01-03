@@ -8,19 +8,27 @@
 
 username = node[:gemstone][:user][:name] 
 
+# gemtools_file = node[:gemstone][:gemtools]
+gemtools_file = "GemTools-2.4.4.3.app"
+
 bash "Download GemTools" do
+  # remote_file = "http://seaside.gemstone.com/squeak/#{gemtools_file}.zip"
+
+  # Hosted on JohnnyT's rackspace account - has Seaside30 loaded
+  remote_file = "http://c0084442.cdn2.cloudfiles.rackspacecloud.com/#{gemtools_file}.zip"
+
   cwd "/opt/gemstone"
-  code "wget http://seaside.gemstone.com/squeak/#{node[:gemstone][:gemtools]}.zip"
-  not_if "[ -e /opt/gemstone/#{node[:gemstone][:gemtools]}.zip ]"
+  code "wget #{remote_file}"
+  not_if "[ -e /opt/gemstone/#{gemtools_file}.zip ]"
 end
 
 bash "Install GemTools" do
   cwd "/opt/gemstone"
   code <<-EOH
-    unzip #{node[:gemstone][:gemtools]}.zip
-    ln -s #{node[:gemstone][:gemtools]} gemtools
-    chmod -R o-w #{node[:gemstone][:gemtools]}
-    chown -R #{username}:#{username} #{node[:gemstone][:gemtools]}
+    unzip #{gemtools_file}.zip
+    ln -s #{gemtools_file} gemtools
+    chown -R #{username}:#{username} #{gemtools_file}
+    chmod -R o-w #{gemtools_file}
   EOH
 
   not_if "[ -e /opt/gemstone/gemtools ]"

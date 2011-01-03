@@ -1,3 +1,5 @@
+require_recipe "apt"
+
 %w[ libpcre3 libpcre3-dev libssl-dev libcurl4-openssl-dev ].each{ |pkg| package pkg }
 
 nginx_version = node[:nginx][:version]
@@ -51,22 +53,6 @@ template "nginx.conf" do
   mode 0644
 end
 
-template "#{node[:nginx][:dir]}/sites-available/default" do
-  source "default-site.erb"
-  owner "root"
-  group "root"
-  mode 0644
-  action :create_if_missing
-end
-
-remote_directory "/var/www/nginx-default" do
-  source  "nginx_default_site"
-  owner   "root"
-  mode    0755
-  files_owner "root"
-  files_mode  0644
-end
-
 template "nginx.init" do
   path "/etc/init.d/nginx"
   source "nginx.init.erb"
@@ -75,10 +61,42 @@ template "nginx.init" do
   mode "0755"
 end
 
-execute "enable_default_site" do
-  command "nxensite default"
-  not_if "[ -e /etc/nginx/sites-enabled/default ]"
+# # Default Site
+# template "#{node[:nginx][:dir]}/sites-available/#{sitename}" do
+#   source "#{sitename}.erb"
+#   owner "root"
+#   group "root"
+#   mode 0644
+#   action :create_if_missing
+# end
+# 
+# remote_directory "/var/www/nginx-default" do
+#   source  "nginx_default_site"
+#   owner   "root"
+#   mode    0755
+#   files_owner "root"
+#   files_mode  0644
+# end
+# 
+# execute "enable_default_site" do
+#   command "nxensite default"
+#   not_if "[ -e /etc/nginx/sites-enabled/default ]"
+# end
+
+# SeaSide site
+template "#{node[:nginx][:dir]}/sites-available/seaside" do
+  source "seaside-site.erb"
+  owner "root"
+  group "root"
+  mode 0644
+  action :create_if_missing
 end
+
+execute "Enable SeaSide NGINX site" do
+  command "nxensite seaside"
+  not_if "[ -e #{node[:nginx][:dir]}/sites-enabled/seaside ]"
+end
+
 
 service "nginx" do
   supports :status => true, :restart => true, :reload => true

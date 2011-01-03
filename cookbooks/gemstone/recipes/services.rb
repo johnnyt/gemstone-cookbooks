@@ -1,6 +1,6 @@
 # Setup the init.d services
 # gs_fastcgi - not working yet
-%w[ gemstone netldi ].each do |service_name|
+%w[ gemstone gs_fastcgi netldi ].each do |service_name|
   cookbook_file "/etc/init.d/#{service_name}" do
     source  "initd/#{service_name}"
     owner   "glass"
