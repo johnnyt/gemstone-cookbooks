@@ -27,10 +27,8 @@ Open roles/gemstone.json and put in your PUBLIC ssh key.
 Now run the following to setup your vagrant box (this also reboots the box for some GemStone settings)
 
 <pre>
-vagrant up && vagrant reload
+vagrant up && vagrant reload && rake ssh
 </pre>
-
-Now ssh in and run:
 
 <pre>
 startstone -N && sudo /etc/init.d/gs_fastcgi start
