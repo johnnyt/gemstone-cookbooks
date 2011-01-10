@@ -1,28 +1,45 @@
 require 'rubygems'
-require 'chef'
-require 'json'
+# require 'chef'
+# require 'json'
 
 desc "Install needed gems and copy example files"
 task :setup do
-  puts "-- Checking for bundler"
-  if %x[gem list] =~ /bundler/
-    puts colorize("   bundler is already installed", :yellow)
+  puts colorize("-- Checking for RubyGems 1.3.6", :blue)
+
+  md = %x[gem env].match(/(\d\.\d\.\d)/)
+  version_string = md.captures.first
+
+  if version_string.gsub(/\./, '').to_i >= 136
+    puts colorize("   RubyGems #{version_string} is already installed", :yellow)
   else
-    puts colorize("   Installing bundler", :green)
-    commands = []
-    commands << "sudo gem install bundler --no-rdoc --no-ri"
-    commands << "bundle install"
-    system commands.join(" && ")
+    puts colorize("   Updating RubyGems - this may prompt for your password", :green)
+    system "sudo gem update --system"
   end
 
+  puts colorize("-- Checking for Bundler", :blue)
+  if %x[gem list] =~ /bundler/
+    puts colorize("   Bundler is already installed", :yellow)
+  else
+    puts colorize("   Installing Bundler - this may prompt for your password", :green)
+    system "sudo gem install bundler --no-rdoc --no-ri"
+  end
+
+  puts colorize("-- Running bundle install", :blue)
+  system "bundle install"
+
+  puts colorize("-- Copying example files", :blue)
   %w[ Vagrantfile roles/gemstone.json ].each do |filename|
     path = File.expand_path(File.join(File.dirname(__FILE__), filename))
 
-    unless File.exists?(path)
+    if File.exists?(path)
+      puts colorize("   Already exists: #{path}", :yellow)
+    else
       puts colorize("   Creating #{path}", :green)
       FileUtils.cp(path+".example", path)
     end
   end
+
+  puts colorize("\n\n   Now open roles/gemstone.json and put in your PUBLIC ssh key.\n\n", :blue)
 end
 
 desc "SSH into vagrant box as glass"
