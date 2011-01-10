@@ -2,9 +2,37 @@ require 'rubygems'
 require 'chef'
 require 'json'
 
+desc "Install needed gems and copy example files"
+task :setup do
+  puts "-- Checking for bundler"
+  if %x[gem list] =~ /bundler/
+    puts colorize("   bundler is already installed", :yellow)
+  else
+    puts colorize("   Installing bundler", :green)
+    commands = []
+    commands << "sudo gem install bundler --no-rdoc --no-ri"
+    commands << "bundle install"
+    system commands.join(" && ")
+  end
+
+  %w[ Vagrantfile roles/gemstone.json ].each do |filename|
+    path = File.expand_path(File.join(File.dirname(__FILE__), filename))
+
+    unless File.exists?(path)
+      puts colorize("   Creating #{path}", :green)
+      FileUtils.cp(path+".example", path)
+    end
+  end
+end
+
 desc "SSH into vagrant box as glass"
 task :ssh do
   system "ssh -p2222 -XC glass@localhost"
+end
+
+desc "Open remote GemTools in local X11"
+task :gemtools do
+  system "ssh -YCn -p2222 glass@localhost gemtools &"
 end
 
 desc "Vagrant commands using bundle exec"
@@ -12,48 +40,30 @@ task :va, :cmd do |t, args|
   system "bundle exec vagrant #{args.cmd}"
 end
 
-# Load constants from rake config file.
-require File.join(File.dirname(__FILE__), 'config', 'rake')
+COLORS = { 
+           :none     => "0",
+           :black    => "30",
+           :red      => "31",
+           :green    => "32",
+           :yellow   => "33",
+           :blue     => "34",
+           :magenta  => "35",
+           :cyan     => "36",
+           :white    => "37"
+        } 
 
-# Detect the version control system and assign to $vcs. Used by the update
-# task in chef_repo.rake (below). The install task calls update, so this
-# is run whenever the repo is installed.
-#
-# Comment out these lines to skip the update.
+ATTRIBUTES = {
+          :none       => 0,
+          :bright     => 1,
+          :dim        => 2,
+          :underscore => 4,
+          :blink      => 5,
+          :reverse    => 7,
+          :hidden     => 8
+        }
 
-if File.directory?(File.join(TOPDIR, ".svn"))
-  $vcs = :svn
-elsif File.directory?(File.join(TOPDIR, ".git"))
-  $vcs = :git
-end
-
-# Load common, useful tasks from Chef.
-# rake -T to see the tasks this loads.
-
-load 'chef/tasks/chef_repo.rake'
-
-desc "Bundle a single cookbook for distribution"
-task :bundle_cookbook => [ :metadata ]
-task :bundle_cookbook, :cookbook do |t, args|
-  tarball_name = "#{args.cookbook}.tar.gz"
-  temp_dir = File.join(Dir.tmpdir, "chef-upload-cookbooks")
-  temp_cookbook_dir = File.join(temp_dir, args.cookbook)
-  tarball_dir = File.join(TOPDIR, "pkgs")
-  FileUtils.mkdir_p(tarball_dir)
-  FileUtils.mkdir(temp_dir)
-  FileUtils.mkdir(temp_cookbook_dir)
-
-  child_folders = [ "cookbooks/#{args.cookbook}", "site-cookbooks/#{args.cookbook}" ]
-  child_folders.each do |folder|
-    file_path = File.join(TOPDIR, folder, ".")
-    FileUtils.cp_r(file_path, temp_cookbook_dir) if File.directory?(file_path)
-  end
-
-  system("tar", "-C", temp_dir, "-cvzf", File.join(tarball_dir, tarball_name), "./#{args.cookbook}")
-
-  FileUtils.rm_rf temp_dir
-end
-
-Dir[ File.join(File.dirname(__FILE__), 'tasks', '*.rake') ].sort.each do |f|
-  load f
+def colorize(message, color_name, attribute=nil)
+  attribute = "#{attribute};" if attribute
+  color = COLORS[color_name]
+  "\e[#{attribute}#{color}m" + message + "\e[0m"
 end
