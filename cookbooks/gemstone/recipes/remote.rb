@@ -8,14 +8,14 @@
 
 username = node[:gemstone][:user][:name] 
 
-# gemtools_file = node[:gemstone][:gemtools]
-gemtools_file = "GemTools-2.4.4.3.app"
+gemtools_file = node[:gemstone][:gemtools]
+# gemtools_file = "GemTools-2.4.4.3.app"
 
 bash "Download GemTools" do
-  # remote_file = "http://seaside.gemstone.com/squeak/#{gemtools_file}.zip"
+  remote_file = "http://seaside.gemstone.com/squeak/#{gemtools_file}.zip"
 
   # Hosted on JohnnyT's rackspace account - has Seaside30 loaded
-  remote_file = "http://c0084442.cdn2.cloudfiles.rackspacecloud.com/#{gemtools_file}.zip"
+  # remote_file = "http://c0084442.cdn2.cloudfiles.rackspacecloud.com/#{gemtools_file}.zip"
 
   cwd "/opt/gemstone"
   code "wget #{remote_file}"
@@ -32,4 +32,12 @@ bash "Install GemTools" do
   EOH
 
   not_if "[ -e /opt/gemstone/gemtools ]"
+end
+
+cookbook_file "/usr/local/bin/gemtools" do
+  source  "gemtools"
+  # owner   username
+  # group   username
+  mode    0755
+  action  :create_if_missing
 end

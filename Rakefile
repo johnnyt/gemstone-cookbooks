@@ -1,8 +1,63 @@
 require 'rubygems'
-require 'chef'
-require 'json'
+# require 'chef'
+# require 'json'
 
-desc "SSH into vagrant box as glass"
+desc "Install needed gems and copy example files"
+task :setup do
+  puts colorize("-- Checking for RubyGems 1.3.6", :blue)
+
+  md = %x[gem env].match(/(\d\.\d\.\d)/)
+  version_string = md.captures.first
+
+  if version_string.gsub(/\./, '').to_i >= 136
+    puts colorize("   RubyGems #{version_string} is already installed", :yellow)
+  else
+    puts colorize("   Updating RubyGems - this may prompt for your password", :green)
+    system "sudo gem update --system"
+  end
+
+  puts colorize("-- Checking for Bundler", :blue)
+  if %x[gem list] =~ /bundler/
+    puts colorize("   Bundler is already installed", :yellow)
+  else
+    puts colorize("   Installing Bundler - this may prompt for your password", :green)
+    system "sudo gem install bundler --no-rdoc --no-ri"
+  end
+
+  puts colorize("-- Running bundle install", :blue)
+  system "bundle install"
+
+  puts colorize("-- Copying example files", :blue)
+  %w[ Vagrantfile roles/gemstone.json ].each do |filename|
+    path = File.expand_path(File.join(File.dirname(__FILE__), filename))
+
+    if File.exists?(path)
+      puts colorize("   Already exists: #{path}", :yellow)
+    else
+      puts colorize("   Creating #{path}", :green)
+      FileUtils.cp(path+".example", path)
+    end
+  end
+
+  note = <<-NOTE
+
+
+-----[ NOTE ]-----
+ Now be sure that you have put your SSH key in roles/gemstone.json
+ This will allow you to easily ssh into the vagrant box as glass
+ and have an environment setup with all the GemStone aliases and
+ variables set.
+   NOTE
+
+  puts colorize(note, :blue)
+end
+
+desc "Open remote GemTools in local X11"
+task :gemtools do
+  system "ssh -YCn -p2222 glass@localhost gemtools &"
+end
+
+desc "SSH into vagrant box as glass with X forwarding enabled"
 task :ssh do
   system "ssh -p2222 -XC glass@localhost"
 end
@@ -12,48 +67,30 @@ task :va, :cmd do |t, args|
   system "bundle exec vagrant #{args.cmd}"
 end
 
-# Load constants from rake config file.
-require File.join(File.dirname(__FILE__), 'config', 'rake')
+COLORS = { 
+           :none     => "0",
+           :black    => "30",
+           :red      => "31",
+           :green    => "32",
+           :yellow   => "33",
+           :blue     => "34",
+           :magenta  => "35",
+           :cyan     => "36",
+           :white    => "37"
+        } 
 
-# Detect the version control system and assign to $vcs. Used by the update
-# task in chef_repo.rake (below). The install task calls update, so this
-# is run whenever the repo is installed.
-#
-# Comment out these lines to skip the update.
+ATTRIBUTES = {
+          :none       => 0,
+          :bright     => 1,
+          :dim        => 2,
+          :underscore => 4,
+          :blink      => 5,
+          :reverse    => 7,
+          :hidden     => 8
+        }
 
-if File.directory?(File.join(TOPDIR, ".svn"))
-  $vcs = :svn
-elsif File.directory?(File.join(TOPDIR, ".git"))
-  $vcs = :git
-end
-
-# Load common, useful tasks from Chef.
-# rake -T to see the tasks this loads.
-
-load 'chef/tasks/chef_repo.rake'
-
-desc "Bundle a single cookbook for distribution"
-task :bundle_cookbook => [ :metadata ]
-task :bundle_cookbook, :cookbook do |t, args|
-  tarball_name = "#{args.cookbook}.tar.gz"
-  temp_dir = File.join(Dir.tmpdir, "chef-upload-cookbooks")
-  temp_cookbook_dir = File.join(temp_dir, args.cookbook)
-  tarball_dir = File.join(TOPDIR, "pkgs")
-  FileUtils.mkdir_p(tarball_dir)
-  FileUtils.mkdir(temp_dir)
-  FileUtils.mkdir(temp_cookbook_dir)
-
-  child_folders = [ "cookbooks/#{args.cookbook}", "site-cookbooks/#{args.cookbook}" ]
-  child_folders.each do |folder|
-    file_path = File.join(TOPDIR, folder, ".")
-    FileUtils.cp_r(file_path, temp_cookbook_dir) if File.directory?(file_path)
-  end
-
-  system("tar", "-C", temp_dir, "-cvzf", File.join(tarball_dir, tarball_name), "./#{args.cookbook}")
-
-  FileUtils.rm_rf temp_dir
-end
-
-Dir[ File.join(File.dirname(__FILE__), 'tasks', '*.rake') ].sort.each do |f|
-  load f
+def colorize(message, color_name, attribute=nil)
+  attribute = "#{attribute};" if attribute
+  color = COLORS[color_name]
+  "\e[#{attribute}#{color}m" + message + "\e[0m"
 end

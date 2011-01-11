@@ -10,7 +10,7 @@ export GEMSTONE_LOGDIR=/opt/gemstone/log
 export GEMSTONE_NAME=seaside
 export GEMSTONE_DATADIR=/opt/gemstone/data
 
-alias gemtools="cd /opt/gemstone/gemtools && ./GemTools.sh"
+# alias gemtools="cd /opt/gemstone/gemtools && ./GemTools.sh"
 
 alias gemstone="sudo /etc/init.d/gemstone"
 alias netldi="sudo /etc/init.d/netldi"
