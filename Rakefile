@@ -39,17 +39,27 @@ task :setup do
     end
   end
 
-  puts colorize("\n\n   Now open roles/gemstone.json and put in your PUBLIC ssh key.\n\n", :blue)
-end
+  note = <<-NOTE
 
-desc "SSH into vagrant box as glass"
-task :ssh do
-  system "ssh -p2222 -XC glass@localhost"
+
+-----[ NOTE ]-----
+ Now be sure that you have put your SSH key in roles/gemstone.json
+ This will allow you to easily ssh into the vagrant box as glass
+ and have an environment setup with all the GemStone aliases and
+ variables set.
+   NOTE
+
+  puts colorize(note, :blue)
 end
 
 desc "Open remote GemTools in local X11"
 task :gemtools do
   system "ssh -YCn -p2222 glass@localhost gemtools &"
+end
+
+desc "SSH into vagrant box as glass with X forwarding enabled"
+task :ssh do
+  system "ssh -p2222 -XC glass@localhost"
 end
 
 desc "Vagrant commands using bundle exec"
