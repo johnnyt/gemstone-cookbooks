@@ -2,6 +2,10 @@ require 'rubygems'
 # require 'chef'
 # require 'json'
 
+def sudo
+  "sudo" unless Gem.path.all? {|p| File.writable?(p) }
+end
+
 desc "Install needed gems and copy example files"
 task :setup do
   puts colorize("-- Checking for RubyGems 1.3.6", :blue)
@@ -13,7 +17,7 @@ task :setup do
     puts colorize("   RubyGems #{version_string} is already installed", :yellow)
   else
     puts colorize("   Updating RubyGems - this may prompt for your password", :green)
-    system "sudo gem update --system"
+    system "#{sudo} gem update --system"
   end
 
   puts colorize("-- Checking for Bundler", :blue)
@@ -21,7 +25,7 @@ task :setup do
     puts colorize("   Bundler is already installed", :yellow)
   else
     puts colorize("   Installing Bundler - this may prompt for your password", :green)
-    system "sudo gem install bundler --no-rdoc --no-ri"
+    system "#{sudo} gem install bundler --no-rdoc --no-ri"
   end
 
   puts colorize("-- Running bundle install", :blue)
