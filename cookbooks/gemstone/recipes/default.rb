@@ -99,6 +99,12 @@ bash "Setup a well-known port for GemStone client access" do
   not_if "grep -q 'GemStone' /etc/services"
 end
 
+bash "Alias localhost to the glass appliance" do
+  user "root"
+  code "echo '127.0.0.1  glass' >> /etc/hosts"
+  not_if "grep -q 'glass' /etc/hosts"
+end
+
 remote_directory "/opt/gemstone" do
   source        "gemstone"
   owner         username
